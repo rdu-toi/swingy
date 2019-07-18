@@ -9,7 +9,6 @@ public class Character {
     private String name;
     private Coordinates coordinates;
     private int experience;
-    double dodgePercent;
 
     Random rand = new Random();
 

@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class StartGame {
 
-    private String[] movement = {"      UP:", "       w", "LEFT:     RIGHT:", "  a         d", "     DOWN:", "       s"};
+    private String[] movement = {"      UP:", "       w", "LEFT:     RIGHT:", "  a         d", "     DOWN:", "       s", "                   ",  "  QUIT: quit"};
     private static String[] swingy;
 
     public Scanner scan = new Scanner(System.in);
@@ -60,7 +60,7 @@ public class StartGame {
         this.swingyWelcome();
         for (int i = 0; i < mapSize; i++) {
             String spaces = "                   ";
-            if (i < 6) {
+            if (i < 8) {
                 System.out.print(movement[i]);
                 char[] repeat;
                 repeat = new char[19 - movement[i].length()];
@@ -87,12 +87,29 @@ public class StartGame {
         }
     }
 
+    public void printCharStats(String[] charStats, String[] enemyStats) {
+        System.out.print("\u001B[34m");
+        System.out.println("    Hero:");
+        System.out.println("  " + charStats[0]);
+        System.out.println("  " + charStats[2]);
+        System.out.println("  " + charStats[3]);
+        System.out.println("  " + charStats[5] + "\n");
+        System.out.print("\u001B[0m");
+        System.out.print("\u001B[31m");
+        System.out.println("    Villian:");
+        for (int i = 0; i < 4; i++)
+            System.out.println("  " + enemyStats[i]);
+        System.out.println();
+        System.out.print("\u001B[0m");
+    }
+
+
     public static void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
 
-    public void swingyWelcome() {
+    public static void swingyWelcome() {
         if (swingy == null) {
             swingy = new String[6];
             swingy[0] = "\u001B[37m" + "  ___________      __.___ _______    _____________.___." + "\u001B[0m";

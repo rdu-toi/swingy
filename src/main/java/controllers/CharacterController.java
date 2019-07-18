@@ -6,7 +6,6 @@ import views.*;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Arrays;
 import java.util.Random;
 
 public class CharacterController {
@@ -18,11 +17,12 @@ public class CharacterController {
     private int mapSize;
     private int numOfEnemies;
     private int numOfEnemiesInSight;
+    private int[] playerToMove = new int[2];
     private String[] charStats;
     private List<Villian> villians;
     private Scanner scan = new Scanner(System.in);
     private Random rand = new Random();
-    private String[] villianNames = {"Tyrannosaura Wrecks", "Bewarewolf", "Captain Crunch", "Chewbacca", "Artichoker", "Cruelcumber", "Boaty Mcboatface", "Paul", "Poopy Head"};
+    private String[] villianNames = {"Tyrannosaura Wrecks", "Bewarewolf", "Captain Crunch", "Chewbacca", "Artichoker", "Cruelcumber", "Boaty Mcboatface", "Paul", "Mr. Poopy Head"};
 
     private void newHero(String name, String classOfHero) {
         switch (classOfHero) {
@@ -145,22 +145,30 @@ public class CharacterController {
 
     private int playerMovement() {
         String line = scan.nextLine();
+        int playerX = classHero.getCoordinates().getX();
+        int playerY = classHero.getCoordinates().getY();
+        playerToMove[0] = playerY;
+        playerToMove[1] = playerX;
         switch (line) {
             case "w":
-                map[classHero.getCoordinates().getY()][classHero.getCoordinates().getX()] = 'o';
-                classHero.getCoordinates().setY(-1);
+                map[playerY][playerX] = 'o';
+                playerToMove[0] = playerY - 1;
+//                classHero.getCoordinates().setY(-1);
                 return 1;
             case "s":
-                map[classHero.getCoordinates().getY()][classHero.getCoordinates().getX()] = 'o';
-                classHero.getCoordinates().setY(1);
+                map[playerY][playerX] = 'o';
+                playerToMove[0] = playerY + 1;
+//                classHero.getCoordinates().setY(1);
                 return 1;
             case "a":
-                map[classHero.getCoordinates().getY()][classHero.getCoordinates().getX()] = 'o';
-                classHero.getCoordinates().setX(-1);
+                map[playerY][playerX] = 'o';
+                playerToMove[1] = playerX - 1;
+//                classHero.getCoordinates().setX(-1);
                 return 1;
             case "d":
-                map[classHero.getCoordinates().getY()][classHero.getCoordinates().getX()] = 'o';
-                classHero.getCoordinates().setX(1);
+                map[playerY][playerX] = 'o';
+                playerToMove[1] = playerX + 1;
+//                classHero.getCoordinates().setX(1);
                 return 1;
             case "quit":
                 System.exit(1);
@@ -169,45 +177,97 @@ public class CharacterController {
     }
 
     private void collision() {
-        int y = classHero.getCoordinates().getY();
-        int x = classHero.getCoordinates().getX();
-        if ((y >= 0 && x >= 0) && (y < mapSize && x < mapSize) && enemyCoordinates[y][x] == 'x') {
+//        int y = classHero.getCoordinates().getY();
+//        int x = classHero.getCoordinates().getX();
+        if ((playerToMove[0] >= 0 && playerToMove[1] >= 0) && (playerToMove[0] < mapSize && playerToMove[1] < mapSize) && enemyCoordinates[playerToMove[0]][playerToMove[1]] == 'x') {
             Villian enemy = new Villian();
             for (Villian villian : villians) {
-                if (villian.getCoordinates().getX() == x && villian.getCoordinates().getY() == y) {
+                if (villian.getCoordinates().getX() == playerToMove[1] && villian.getCoordinates().getY() == playerToMove[0]) {
                     enemy = villian;
                     break;
                 }
             }
-            System.out.print("\u001B[36m");
-            System.out.println("\nYou have run into villian '" + enemy.getName() + "' and now you must fight to the death!");
-            System.out.print("\u001B[0m");
-            //  Battle commences.
-            //  Player gets xp and/or loses health if wins. Else, if player dies, the game quits. Updates still pending...
-            this.battle(enemy, x, y);
+            this.battle(enemy);
+        }
+        else {
+            classHero.getCoordinates().setY(playerToMove[0]);
+            classHero.getCoordinates().setX(playerToMove[1]);
         }
     }
 
-    private void battle(Villian enemy, int x, int y) {
-        while (true) {
-            int damage = classHero.attack() - enemy.getDefense();
-            if (damage > 0)
-                enemy.setHitPoints(enemy.getHitPoints() - damage);
-            if (enemy.getHitPoints() <= 0) {
-                System.out.println("Villian: '" + enemy.getName() + "' has been defeated!");
-                classHero.setCurrentExperience(classHero.getCurrentExperience() + enemy.getExperience());
-                villians.remove(enemy);
-                enemyCoordinates[y][x] = 'o';
+    private void battle(Villian enemy) {
+        StartGame.clearScreen();
+        StartGame.swingyWelcome();
+        System.out.print("\u001B[36m");
+        System.out.println("\nYou have run into villian '" + enemy.getName() + "' and now you must fight to the death!\n");
+        int run = 1;
+        if (Math.random() > 0.50)
+            run = 0;
+        int flag = 1;
+        if (Math.random() > 0.20)
+            flag = 0;
+        String[] enemyStats = {"Name: " + enemy.getName(), "Attack: " + Integer.toString(enemy.getAttack()), "Defense: " + Integer.toString(enemy.getDefense()), "Hit Points: " + Integer.toString(enemy.getHitPoints())};
+        startGame.printCharStats(charStats, enemyStats);
+        System.out.print("\u001B[36m");
+        System.out.println("Do you wish to fight or run away?\n'q': fight   'e': run\n");
+        System.out.print("\u001B[0m");
+        while (scan.hasNextLine()) {
+            String line = scan.nextLine();
+            if (line.equals("e")) {
+                if (run == 1)
+                    break;
+                System.out.print("\u001B[31m");
+                System.out.println("You have failed to run away.");
+                System.out.print("\u001B[0m");
+                run = 2;
+            }
+            if (run == 2 || line.equals("q")) {
+                while (true) {
+                    int damage;
+                    if (flag == 1) {
+                        damage = classHero.attack() - enemy.getDefense();
+                        if (damage > 0)
+                            enemy.setHitPoints(enemy.getHitPoints() - damage);
+                        if (enemy.getHitPoints() <= 0) {
+                            System.out.print("\u001B[32m");
+                            System.out.println("Villian: '" + enemy.getName() + "' has been defeated! Hoorah!\n");
+                            System.out.print("\u001B[0m");
+                            classHero.setCurrentExperience(classHero.getCurrentExperience() + enemy.getExperience());
+                            classHero.getCoordinates().setY(playerToMove[0]);
+                            classHero.getCoordinates().setX(playerToMove[1]);
+                            enemyCoordinates[playerToMove[0]][playerToMove[1]] = 'o';
+                            villians.remove(enemy);
+                            System.out.println("Press any button to continue!");
+                            line = scan.nextLine();
+                            break;
+                        }
+                    } else {
+                        System.out.print("\u001B[31m");
+                        System.out.println("\n" + enemy.getName() + " got the jump on you and attacks first.\n");
+                        System.out.print("\u001B[0m");
+                    }
+                    damage = enemy.attack() - classHero.getDefense();
+                    if (damage > 0)
+                        classHero.setCurrentHP(classHero.getCurrentHP() - damage);
+                    if (classHero.getCurrentHP() <= 0) {
+                        System.out.print("\u001B[31m");
+                        System.out.println("Hero: " + classHero.getClassOfHero() + " '" + classHero.getName() + "' has been defeated!\n\n              GAME OVER");
+                        System.out.print("\u001B[0m");
+                        ScanClose();
+                        System.exit(0);
+                    }
+                    flag = 1;
+                }
                 break;
             }
-            damage = enemy.attack() - classHero.getDefense();
-            if (damage > 0)
-                classHero.setCurrentHP(classHero.getCurrentHP() - damage);
-            if (classHero.getCurrentHP() <= 0) {
-                System.out.println("Hero: " + classHero.getClassOfHero() + " '" + classHero.getName() + "' has been defeated!\n\nGAME OVER");
-                ScanClose();
-                System.exit(0);
-            }
+            StartGame.clearScreen();
+            StartGame.swingyWelcome();
+            System.out.print("\u001B[36m");
+            System.out.println("\nYou have run into villian '" + enemy.getName() + "' and now you must fight to the death!\n");
+            startGame.printCharStats(charStats, enemyStats);
+            System.out.print("\u001B[36m");
+            System.out.println("Do you wish to fight or run away?\n'q': fight   'e': run\n");
+            System.out.print("\u001B[0m");
         }
     }
 
