@@ -22,7 +22,6 @@ public class CharacterController {
     private List<Villian> villians;
     private Scanner scan = new Scanner(System.in);
     private Random rand = new Random();
-    private String[] villianNames = {"Tyrannosaura Wrecks", "Bewarewolf", "Captain Crunch", "Chewbacca", "Artichoker", "Cruelcumber", "Boaty Mcboatface", "Paul", "Mr. Poopy Head"};
 
     private void newHero(String name, String classOfHero) {
         switch (classOfHero) {
@@ -84,7 +83,7 @@ public class CharacterController {
             }
             if (flag == 1) {
                 Coordinates coordinates1 = new Coordinates(x, y);
-                Villian villian = newVillian(x, y);
+                Villian villian = Villian.newVillian(classHero.getLevel(), x, y);
                 if (numOfEnemiesInSight > i) {
                     int attack = ((10 * villian.getAttack()) / 100) + villian.getAttack();
                     int defense = ((10 * villian.getDefense()) / 100) + villian.getDefense();
@@ -269,22 +268,6 @@ public class CharacterController {
             System.out.println("Do you wish to fight or run away?\n'q': fight   'e': run\n");
             System.out.print("\u001B[0m");
         }
-    }
-
-    private Villian newVillian(int x, int y) {
-        int heroLevel = classHero.getLevel();
-        int highestAttack = 55 + (15 * (heroLevel - 1));
-        int highestDefense = 30 + (15 * (heroLevel - 1));
-        int highestHP = 180 + (15 * (heroLevel - 1));
-        int highestXP = ((heroLevel * 1000) + ((heroLevel - 1) * 2 * 450)) / (20 + ((heroLevel - 1) * 20));
-        int lowestXP = (85 * highestXP) / 100;
-        int finalXP = rand.nextInt(highestXP - lowestXP) + lowestXP;
-        int finalAttack = (85 * highestAttack) / 100;
-        int finalDefense = (85 * highestDefense) / 100;
-        int finalHP = (85 * highestHP) / 100;
-        Coordinates coordinates = new Coordinates(x, y);
-        int randomElement = rand.nextInt(villianNames.length);
-        return new Villian(villianNames[randomElement], finalAttack, finalDefense, finalHP, coordinates, finalXP);
     }
 
     public void ScanClose() {
